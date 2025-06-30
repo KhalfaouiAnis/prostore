@@ -1,4 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
+
+import qs from "query-string";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -18,7 +20,7 @@ export function formatNumberWithDecimal(num: number): string {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function formatError(error: any) {
+export function formatError(error: any) {
   if (error.name === "ZodError") {
     const fieldErrors = Object.keys(error.errors).map(
       (field) => error.errors[field].message
@@ -66,6 +68,11 @@ export function formatCurrency(amount: number | string | null) {
   }
 }
 
+const NUMBER_FORMATTER = new Intl.NumberFormat("en-US");
+export function formatNumber(number: number) {
+  return NUMBER_FORMATTER.format(number);
+}
+
 export function formatId(id: string) {
   return `..${id.substring(id.length - 6)}`;
 }
@@ -108,3 +115,27 @@ export const formatDateTime = (dateString: Date) => {
     timeOnly: formattedTime,
   };
 };
+
+export function formUrlQuery({
+  params,
+  key,
+  value,
+}: {
+  params: string;
+  key: string;
+  value: string | null;
+}) {
+  const query = qs.parse(params);
+
+  query[key] = value;
+
+  return qs.stringifyUrl(
+    {
+      url: window.location.pathname,
+      query,
+    },
+    {
+      skipNull: true,
+    }
+  );
+}

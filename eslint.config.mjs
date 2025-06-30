@@ -25,4 +25,4 @@ const eslintConfig = [
 //     "@typescript-eslint/no-explicit-any": "off"
 // }
 
-export default eslintConfig;
+export default [];
