@@ -1,5 +1,6 @@
 import { prisma } from "@/db/prisma";
 import sampleData from "@/db/sample-data";
+import { hash } from "@/lib/encrypt";
 
 async function main() {
   await prisma.product.deleteMany();
@@ -12,8 +13,18 @@ async function main() {
     data: sampleData.products,
   });
 
+  const users = [];
+
+  for (let i = 0; i < sampleData.users.length; i++) {
+    const current = sampleData.users[i];
+    users.push({
+      ...current,
+      password: await hash(current.password),
+    });
+  }
+
   await prisma.user.createMany({
-    data: sampleData.users,
+    data: users,
   });
 
   console.log("Database seeded successfully.");

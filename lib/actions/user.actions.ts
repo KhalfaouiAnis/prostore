@@ -4,10 +4,10 @@ import { auth, signIn, signOut } from "@/auth";
 import { prisma } from "@/db/prisma";
 import { getMyCart } from "@/lib/actions/cart.actions";
 import { PAGE_SIZE } from "@/lib/constants";
+import { hash } from "@/lib/encrypt";
 import { Prisma } from "@/lib/generated/prisma";
 import { formatError } from "@/lib/utils";
 import { ShippingAddress } from "@/types";
-import { hashSync } from "bcrypt-ts-edge";
 import { revalidatePath } from "next/cache";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { z } from "zod";
@@ -55,7 +55,7 @@ export async function signUpUser(_: unknown, formData: FormData) {
 
     const plainPassword = user.password;
 
-    user.password = hashSync(user.password, 10);
+    user.password = await hash(user.password);
 
     await prisma.user.create({
       data: {

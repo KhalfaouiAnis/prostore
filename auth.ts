@@ -1,7 +1,7 @@
 import { prisma } from "@/db/prisma";
 import { PROTECTED_PATHS } from "@/lib/constants";
+import { compare } from "@/lib/encrypt";
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import { compareSync } from "bcrypt-ts-edge";
 import NextAuth, { NextAuthConfig } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { cookies } from "next/headers";
@@ -40,7 +40,7 @@ export const config = {
         });
 
         if (user?.password) {
-          const isMatch = compareSync(
+          const isMatch = await compare(
             credentials.password as string,
             user.password
           );
