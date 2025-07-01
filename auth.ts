@@ -1,11 +1,10 @@
 import { prisma } from "@/db/prisma";
-import { PROTECTED_PATHS } from "@/lib/constants";
 import { compare } from "@/lib/encrypt";
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import NextAuth, { NextAuthConfig } from "next-auth";
+import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
+import { authConfig } from "./auth.config";
 
 export const config = {
   pages: {
@@ -61,6 +60,7 @@ export const config = {
     }),
   ],
   callbacks: {
+    ...authConfig.callbacks,
     async session({ session, user, trigger, token }: any) {
       session.user.id = token.sub;
       session.user.role = token.role;
@@ -113,30 +113,7 @@ export const config = {
       }
       return token;
     },
-    authorized({ request, auth }: any) {
-      const { pathname } = request.nextUrl;
-
-      if (!auth && PROTECTED_PATHS.some((p) => p.test(pathname))) return false;
-
-      if (!request.cookies.get("sessionCartId")) {
-        const sessionCartId = crypto.randomUUID();
-
-        // clone request headers
-        const newRequestHeaders = new Headers(request.headers);
-        const response = NextResponse.next({
-          request: {
-            headers: newRequestHeaders,
-          },
-        });
-
-        // set cartId in the response cookies
-        response.cookies.set("sessionCartId", sessionCartId);
-
-        return response;
-      }
-      return true;
-    },
   },
-} satisfies NextAuthConfig;
+};
 
 export const { handlers, auth, signIn, signOut } = NextAuth(config);
